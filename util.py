@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import platform
+import random
 from pymongo import MongoClient
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -30,23 +31,28 @@ def get_phantomjs():
 
 # 返回phantomjs渲染后的页面,类型为str
 def get_phantomjs_page(url):
-	phantomjs = get_phantomjs()
-	if (phantomjs is not None):
-		brower = webdriver.PhantomJS(executable_path=phantomjs)
-		try:
-		    brower.get(url)
-		    page = brower.page_source
-		except:
-		    print("Unexpected error:", sys.exc_info()[0])
-		else:
-		    return page
-		finally:
-		    brower.quit()
-	else:
-		print('无法获得phantomjs')
+    phantomjs = get_phantomjs()
+    if (phantomjs is not None):
+        brower = webdriver.PhantomJS(executable_path=phantomjs)
+        try:
+            brower.get(url)
+            page = brower.page_source
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+        else:
+            return page
+        finally:
+            brower.quit()
+    else:
+        print('无法获得phantomjs')
 
 
 # 连接到mongodb 默认使用数据库spider
 def get_database_connect():
     conn = MongoClient(host='127.0.0.1', port=27017)
-    return conn.spider
+    return conn.paper_spider
+
+
+# 返回生成的随机数,范围是[begin, end]
+def get_random_uniform(begin=0, end=50):
+    return random.uniform(begin, end)

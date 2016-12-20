@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 
 # 存放爬取到的文件的根目录
-file_dir = './file/'
+base_dir = './file/'
 
 header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -176,4 +176,9 @@ def init_dir(path):
 def get_html_text(url):
     r = requests.get(url, headers=header)
     soup = BeautifulSoup(r.text, 'html.parser')
+    return soup
+
+
+def get_html_str(str):
+    soup = BeautifulSoup(str, 'html.parser')
     return soup
