@@ -1,0 +1,34 @@
+ACM 	
+http://dblp.uni-trier.de/db/journals/tissec/    ok
+
+Springer 	
+http://dblp.uni-trier.de/db/journals/joc/       ok
+http://dblp.uni-trier.de/db/journals/dcc/
+http://dblp.uni-trier.de/db/journals/ejisec/
+
+IEEE
+http://dblp.uni-trier.de/db/journals/tdsc/      ok
+http://dblp.uni-trier.de/db/journals/tifs/
+
+Elsevier 	
+http://dblp.uni-trier.de/db/journals/compsec/   ok
+http://dblp.uni-trier.de/db/journals/istr/
+http://www.journals.elsevier.com/computer-law-and-security-review/
+
+IET
+http://dblp.uni-trier.de/db/journals/iet-ifs/   ok
+
+IOS Press 	
+http://dblp.uni-trier.de/db/journals/jcs/       ok
+
+Idea Group Inc 	
+http://dblp.uni-trier.de/db/journals/ijisp/     not
+
+Wiley
+http://dblp.uni-trier.de/db/journals/scn/       not
+
+Inderscience 	
+http://dblp.uni-trier.de/db/journals/ijics/ 没有下载权限
+
+Emerald
+http://dblp.uni-trier.de/db/journals/imcs/  没有下载权限
