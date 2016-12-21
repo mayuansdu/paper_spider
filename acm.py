@@ -37,6 +37,7 @@ def handle_second_page(url, attrs):
         raw_links = get_html_text(url).find_all(text=re.compile(r'electronic edition @'))
     links = map(lambda tmp: tmp.find_parent('a'), raw_links)
     for raw_url in links:
+        paper_dict = handle_third_page(raw_url.get('href'), attrs)
         tmp = raw_url.find_parent('li', class_='drop-down')
         if tmp is not None:
             temp = tmp.find_next_sibling('li', class_='drop-down')
@@ -45,11 +46,8 @@ def handle_second_page(url, attrs):
                     'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
                 )
                 if raw_ris is not None:
-                    ris = raw_ris.get('href')   # 论文信息RIS文件链接
-        print('论文:', raw_url.get('href'))
-        print('ris:', ris)
-        # handle_third_page(raw_url.get('href'), attrs)
-        # time.sleep(get_random_uniform(begin=5.0, end=20.0))
+                    download_paper_info(raw_ris.get('href'), paper_dict)
+        time.sleep(get_random_uniform(begin=5.0, end=20.0))
     if links is None:
         print('处理二级页面，没有找到electronic edition链接')
 
@@ -58,34 +56,25 @@ def handle_second_page(url, attrs):
 def handle_third_page(url, attrs):
     soup = get_html_text(url)
     # 获取关于论文的描述信息:标题、作者、发表日期等等
-    # data_dict = copy.deepcopy(attrs)  # 深拷贝字典
-    # authors = soup.find_all('a', attrs={'title': 'Author Profile Page'})
-    # if (authors is not None) and (authors != ''):
-    #     authors_dict = {}
-    #     for tmp in authors:
-    #         temp = tmp.find_next('a', attrs={'title': 'Institutional Profile Page'})
-    #         if (temp is not None) and (temp != ''):
-    #             institute = temp.find_next('small')
-    #             if (institute is not None) and (institute != ''):
-    #                 authors_dict[tmp.get_text().strip()] = institute.get_text().strip()
-    #     data_dict['author'] = authors_dict
-    # else:
-    #     print('三级页面没有找到论文描述信息{0}:'.format(url))
-    # 获取论文的EndNote格式信息并保存到本地
-    tmp = soup.find('a', text='EndNote')
-    if (tmp is not None):
-        raw_link = tmp.get('href')
-        endnote = 'http://dl.acm.org/' + re.split(r"'", raw_link)[3]
-        print(endnote)
-        download_paper_info(raw_link)
+    data_dict = copy.deepcopy(attrs)  # 深拷贝字典
+    authors = soup.find_all('a', attrs={'title': 'Author Profile Page'})
+    if (authors is not None) and (authors != ''):
+        authors_dict = {}
+        for tmp in authors:
+            temp = tmp.find_next('a', attrs={'title': 'Institutional Profile Page'})
+            if (temp is not None) and (temp != ''):
+                institute = temp.find_next('small')
+                if (institute is not None) and (institute != ''):
+                    authors_dict[tmp.get_text().strip()] = institute.get_text().strip()
+        data_dict['author'] = authors_dict
+        return data_dict    #返回数据字典（类别、等级、作者信息）
     else:
-        print('没有找到此链接的EndNote:%s' % (url))
+        print('三级页面没有找到论文描述信息{0}:'.format(url))
 
 
 # 下载论文描述的ris格式文件保存到本地
-def download_paper_info(url):
+def download_paper_info(url, attrs):
     filename = re.split(r'/', url)[-1]
-    print('name:', filename, url)
     data = get_html_text(url).get_text()
     if data is not None:
         # 将数据存入本地文件中，方便读取和写入数据库
@@ -93,12 +82,13 @@ def download_paper_info(url):
         with open(filepath, 'w') as f:
             f.write(data)
             f.flush()
-        write_to_database(filepath)
+        write_to_database(filepath, attrs)
 
 
 # 把论文信息写入数据库中
-def write_to_database(filepath):
-    pass
+def write_to_database(filepath, attrs):
+    print('数据库文件路径：', filepath, os.path.exists(filepath))
+    print('字典为:', attrs)
 
 
 # 爬取ACMDL的论文
