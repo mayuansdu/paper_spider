@@ -4,5 +4,4 @@ __pycache__/
 /file/*
 url/
 /log/*
-phantomjs/
 ghostdriver.log
