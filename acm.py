@@ -4,11 +4,15 @@ import os
 import re
 import copy
 import time
-from common import base_dir, conference_acm, journal_acm, get_html_text, init_dir
+import traceback
+from common import base_dir, log_dir, conference_acm, journal_acm, get_html_text, init_dir
 from util import get_database_connect, get_random_uniform
 
 # 保存下载文件的目录
 root_dir = base_dir + 'acm/'
+
+# 程序运行日志文件
+logfile = log_dir + 'log_acm.txt'
 
 
 # 处理一级页面
@@ -103,6 +107,8 @@ def write_to_database(filepath, attrs):
     except Exception as e:
         print('写入数据库出错！', e, filepath)
         print('当前数据字典为：', attrs)
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath)
 
 
 # 处理论文RIS文本内容
@@ -129,6 +135,8 @@ def handle_ris(filepath, attrs):
                     attrs['url'] = url
     else:
         print(filepath, '文件不存在！')
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('handle_ris:' + filepath + '文件不存在！' + '\n')
 
 
 # 爬取ACMDL的论文
@@ -141,11 +149,19 @@ def spider_acm_dl(urls, attrs):
 
 
 def run_acmdl():
-    spider_acm_dl(conference_acm, attrs={'category': 'conference'})   # 采集会议论文信息
-    spider_acm_dl(journal_acm, attrs={'category': 'journal'})  # 采集期刊论文信息
+    with open(logfile, 'a+', encoding='utf-8') as f:
+        f.write('acm_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
+    try:
+        spider_acm_dl(conference_acm, attrs={'category': 'conference'})   # 采集会议论文信息
+        spider_acm_dl(journal_acm, attrs={'category': 'journal'})  # 采集期刊论文信息
+    except Exception as e:
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            traceback.print_exc(file=f)
+            f.write('acm_spider异常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+    else:
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('acm_spider正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
 
 
 if __name__ == '__main__':
     run_acmdl()
-    # handle_third_page('http://dl.acm.org/citation.cfm?doid=2939918.2939933', attrs={'category': 'conference'})
-    # write_to_database('./file/acm/ZhengSLHH16.ris', {'category': 'confer', 'author':['Hou, Y. Thomas', 'Hollick, Matthias']})
