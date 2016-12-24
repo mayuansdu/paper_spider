@@ -178,16 +178,16 @@ def init_dir(path):
 
 # 获得解析后的网页文本
 def get_html_text(url):
-    try:
-        r = requests.get(url, headers=header)
-        r.encoding = 'utf-8'
-        soup = BeautifulSoup(r.text, 'html.parser')
-        return soup
-    except Exception as e:
-        print('get_html_text出现异常！' + str(e))
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('get_html_text出现异常！' + str(e) + '\n')
-        return None
+    for i in range(1, 6):   # 如果连接异常，尝试5次
+        try:
+            r = requests.get(url, headers=header)
+            r.encoding = 'utf-8'
+            soup = BeautifulSoup(r.text, 'html.parser')
+            return soup
+        except Exception as e:
+            print('get_html_text出现异常！' + str(e))
+            with open(logfile, 'a+', encoding='utf-8') as f:
+                f.write('get_html_text出现异常！第{0}次尝试'.format(i) + str(e) + '\n')
 
 
 def get_html_str(str):

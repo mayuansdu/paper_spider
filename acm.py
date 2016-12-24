@@ -90,6 +90,8 @@ def download_paper_info(url, attrs):
     page_content = get_html_text(url)
     if page_content is None:
         print('出现异常的网址:', url)
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('download_paper_info:' + '出错！' + url)
         return None
     data = page_content.get_text()
     if data is not None:

@@ -5,7 +5,6 @@ import platform
 import random
 from pymongo import MongoClient
 from selenium import webdriver
-from selenium.webdriver.common.by import By
 
 phantomjs_list =[
     'phantomjs/windows/bin/phantomjs.exe',   # windows环境的phantomjs
