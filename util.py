@@ -54,5 +54,5 @@ def get_database_connect():
 
 
 # 返回生成的随机数,范围是[begin, end]
-def get_random_uniform(begin=0, end=50):
+def get_random_uniform(begin=60, end=300):
     return random.uniform(begin, end)

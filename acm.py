@@ -18,26 +18,31 @@ logfile = log_dir + 'log_acm.txt'
 # 处理一级页面
 def handle_first_page(url, attrs):
     #获得一级页面
-    raw_links = get_html_text(url).find_all('a', text='[contents]')
+    page_content = get_html_text(url)
+    if page_content is None:
+        return None
+    raw_links = page_content.find_all('a', text='[contents]')
     if ((raw_links is not None) and (len(raw_links)) > 0):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)   # 会议论文
     else:
-        raw_links = get_html_text(url).find_all('a', text=re.compile(r'Volume'))   # 期刊
+        raw_links = page_content.find_all('a', text=re.compile(r'Volume'))   # 期刊
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=5.0, end=20.0))
+        time.sleep(get_random_uniform(begin=60.0, end=300.0))
 
 
 # 处理二级页面
 def handle_second_page(url, attrs):
     # 获得二级页面
     soup = get_html_text(url)
+    if soup is None:
+        return None
     # 优先使用DOI链接
     raw_links = soup.find_all(text=re.compile(r'electronic edition via DOI'))
     if len(raw_links) == 0:
         # 没有找到DOI链接，就选择使用通过 @ 找到的链接
-        raw_links = get_html_text(url).find_all(text=re.compile(r'electronic edition @'))
+        raw_links = soup.find_all(text=re.compile(r'electronic edition @'))
     links = map(lambda tmp: tmp.find_parent('a'), raw_links)
     for raw_url in links:
         paper_dict = handle_third_page(raw_url.get('href'), attrs)
@@ -50,7 +55,7 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), paper_dict)
-        time.sleep(get_random_uniform(begin=5.0, end=20.0))
+        time.sleep(get_random_uniform(begin=60.0, end=300.0))
     if links is None:
         print('处理二级页面，没有找到electronic edition链接')
 
@@ -58,6 +63,8 @@ def handle_second_page(url, attrs):
 # 处理三级页面
 def handle_third_page(url, attrs):
     soup = get_html_text(url)
+    if soup is None:
+        return None
     # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典
     authors = soup.find_all('a', attrs={'title': 'Author Profile Page'})
@@ -80,7 +87,11 @@ def handle_third_page(url, attrs):
 # 下载论文描述的ris格式文件保存到本地
 def download_paper_info(url, attrs):
     filename = re.split(r'/', url)[-1]
-    data = get_html_text(url).get_text()
+    page_content = get_html_text(url)
+    if page_content is None:
+        print('出现异常的网址:', url)
+        return None
+    data = page_content.get_text()
     if data is not None:
         # 将数据存入本地文件中，方便读取和写入数据库
         filepath = root_dir + filename

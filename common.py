@@ -9,6 +9,7 @@ base_dir = './file/'
 
 # 程序运行日志文件根目录
 log_dir = './log/'
+logfile = log_dir + 'log_common.txt'
 
 header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -177,9 +178,16 @@ def init_dir(path):
 
 # 获得解析后的网页文本
 def get_html_text(url):
-    r = requests.get(url, headers=header)
-    soup = BeautifulSoup(r.text, 'html.parser')
-    return soup
+    try:
+        r = requests.get(url, headers=header)
+        r.encoding = 'utf-8'
+        soup = BeautifulSoup(r.text, 'html.parser')
+        return soup
+    except Exception as e:
+        print('get_html_text出现异常！' + str(e))
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('get_html_text出现异常！' + str(e) + '\n')
+        return None
 
 
 def get_html_str(str):
