@@ -29,7 +29,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=60.0, end=180.0))
 
 
 # 处理二级页面
