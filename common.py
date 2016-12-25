@@ -1,8 +1,11 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import re
+import time
 import requests
 from bs4 import BeautifulSoup
+from util import get_database_connect
 
 # 存放爬取到的文件的根目录
 base_dir = './file/'
@@ -22,6 +25,7 @@ header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/201
 conference_acm = {
     'a': [
         'http://dblp.uni-trier.de/db/conf/ccs/',
+        'http://dblp.uni-trier.de/db/conf/acsac/',
     ],
     'c': [
         'http://dblp.uni-trier.de/db/conf/wisec/',
@@ -88,7 +92,6 @@ conference_ieee = {
         'http://dblp.uni-trier.de/db/conf/sp/',
     ],
     'b': [
-        'http://dblp.uni-trier.de/db/conf/acsac/',
         'http://dblp.uni-trier.de/db/conf/csfw/',
         'http://dblp.uni-trier.de/db/conf/dsn/',
         'http://dblp.uni-trier.de/db/conf/srds/',
@@ -193,3 +196,71 @@ def get_html_text(url):
 def get_html_str(str):
     soup = BeautifulSoup(str, 'html.parser')
     return soup
+
+
+# 下载论文描述的ris格式文件保存到本地
+def download_paper_info(url, root_dir, logfile, attrs):
+    filename = re.split(r'/', url)[-1]
+    page_content = get_html_text(url)
+    if page_content is None:
+        print('出现异常的网址:', url)
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('download_paper_info:' + '出错！' + url)
+        return None
+    data = page_content.get_text()
+    if data is not None:
+        # 将数据存入本地文件中，方便读取和写入数据库
+        filepath = root_dir + filename
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(data)
+            f.flush()
+        write_to_database(filepath, logfile, attrs)
+
+
+# 把论文信息写入数据库中
+def write_to_database(filepath, logfile, attrs):
+    attrs['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
+    try:
+        handle_ris(filepath, logfile, attrs)
+        collection = attrs['category']
+        if (collection is not None) and (collection != ''):
+            db = get_database_connect()
+            if collection == 'conference':
+                db.conference.insert(attrs)
+            elif collection == 'journal':
+                db.journal.insert(attrs)
+            else:
+                db.others.insert(attrs)
+    except Exception as e:
+        print('写入数据库出错！', e, filepath)
+        print('当前数据字典为：', attrs)
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath)
+
+
+# 处理论文RIS文本内容
+def handle_ris(filepath, logfile, attrs):
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as f:  # 此处不设置为utf-8 因为有特殊符号无法编码
+            context = f.readlines()[5:-1]
+            for line in context:
+                line = line.strip('\n')
+                if re.search(r'TI', line) is not None:
+                    title = line[6:].strip()
+                    attrs['title'] = title
+                if re.search(r'BT', line) is not None:
+                    booktitle = line[6:].strip()
+                    attrs['booktitle'] = booktitle
+                if re.search(r'PY', line) is not None:
+                    year = line[6:10]
+                    attrs['year'] = year
+                if re.search(r'DO', line) is not None:
+                    doi = line[6:].strip()
+                    attrs['doi'] = doi
+                if re.search(r'UR', line) is not None:
+                    url = line[6:].strip()
+                    attrs['url'] = url
+    else:
+        print(filepath, '文件不存在！')
+        with open(logfile, 'a+', encoding='utf-8') as f:
+            f.write('handle_ris:' + filepath + '文件不存在！' + '\n')
