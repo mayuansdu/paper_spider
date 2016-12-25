@@ -89,8 +89,8 @@ journal_springer = {
 
 conference_ieee = {
     'a': [
-        'http://dblp.uni-trier.de/db/conf/sp/',
-    ],
+            'http://dblp.uni-trier.de/db/conf/sp/',
+        ],
     'b': [
         'http://dblp.uni-trier.de/db/conf/csfw/',
         'http://dblp.uni-trier.de/db/conf/dsn/',
@@ -259,7 +259,8 @@ def handle_ris(filepath, logfile, attrs):
                     attrs['doi'] = doi
                 if re.search(r'UR', line) is not None:
                     url = line[6:].strip()
-                    attrs['url'] = url
+                    if 'url' not in attrs.keys():
+                        attrs['url'] = url
     else:
         print(filepath, '文件不存在！')
         with open(logfile, 'a+', encoding='utf-8') as f:
