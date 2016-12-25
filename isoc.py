@@ -137,6 +137,7 @@ def handle_ris(filepath, logfile, attrs):
 
 # 爬取isoc的论文信息
 def spider_isoc(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key

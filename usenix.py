@@ -93,6 +93,7 @@ def handle_third_page(url, attrs):
 
 # 爬取usenix的论文信息
 def spider_usenix(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key

@@ -90,6 +90,7 @@ def handle_third_page(url, attrs):
 
 # 爬取ieee的论文信息
 def spider_ieee(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key

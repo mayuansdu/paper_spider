@@ -137,6 +137,7 @@ def handle_ris(filepath, logfile, attrs):
 
 # 爬取elsevier的论文信息
 def spider_elsevier(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key
@@ -149,7 +150,7 @@ def run_elsevier():
         f.write('elsevier_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
     try:
         spider_elsevier(conference_elsevier, attrs={'category': 'conference'})   # 采集会议论文信息
-        spider_elsevier(journal_elsevier, attrs={'category': 'conference'}) # 采集期刊信息
+        # spider_elsevier(journal_elsevier, attrs={'category': 'conference'}) # 采集期刊信息
     except Exception as e:
         with open(logfile, 'a+', encoding='utf-8') as f:
             traceback.print_exc(file=f)

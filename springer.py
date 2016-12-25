@@ -98,6 +98,7 @@ def handle_third_page(url, attrs):
 
 # 爬取springer的论文
 def spider_springer(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key

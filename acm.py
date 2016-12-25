@@ -82,7 +82,8 @@ def handle_third_page(url, attrs):
                     data_list = re.split(r',', institute)
                     affiliation_dict['affiliation'] = institute
                     affiliation_dict['affiliation_name'] = data_list[0]
-                    affiliation_dict['affiliation_country'] = data_list[-1]
+                    if len(data_list) != 1:
+                        affiliation_dict['affiliation_country'] = data_list[-1]
                     authors_dict[author_name] = affiliation_dict
         data_dict['author'] = authors_dict
         return data_dict    #返回数据字典（类别、等级、作者信息）
@@ -92,6 +93,7 @@ def handle_third_page(url, attrs):
 
 # 爬取ACMDL的论文
 def spider_acm_dl(urls, attrs):
+    init_dir(log_dir)
     init_dir(root_dir)
     for key, value in urls.items():
         attrs['rank'] = key
