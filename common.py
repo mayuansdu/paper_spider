@@ -205,7 +205,7 @@ def download_paper_info(url, root_dir, logfile, attrs):
     if page_content is None:
         print('出现异常的网址:', url)
         with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('download_paper_info:' + '出错！' + url)
+            f.write('download_paper_info:' + '出错！' + url + '\n')
         return None
     data = page_content.get_text()
     if data is not None:
@@ -235,7 +235,7 @@ def write_to_database(filepath, logfile, attrs):
         print('写入数据库出错！', e, filepath)
         print('当前数据字典为：', attrs)
         with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath)
+            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath + '\n')
 
 
 # 处理论文RIS文本内容
