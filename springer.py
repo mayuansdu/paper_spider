@@ -29,7 +29,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=1.0, end=5.0))
+        time.sleep(get_random_uniform(begin=60.0, end=180.0))
 
 
 def handle_second_page(url, attrs):
@@ -56,7 +56,7 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
-        time.sleep(get_random_uniform(begin=1.0, end=10.0))
+        time.sleep(get_random_uniform(begin=60.0, end=300.0))
 
 
 # 处理三级页面
@@ -89,7 +89,7 @@ def handle_third_page(url, attrs):
     for tmp in tmp_list:
         id = tmp.find_next_sibling('ul').find_next('li').get_text()
         author = re.sub(r'\xa0', ' ', tmp.get_text()).strip()
-        author = re.sub(r'\.', ' ', author)
+        author = re.sub(r'[\._$]', ' ', author)
         author_dict[author] = affiliation_list[int(id)-1]
     if len(author_dict) != 0:
         data_dict['author'] = author_dict
