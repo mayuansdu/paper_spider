@@ -47,29 +47,45 @@ def handle_second_page(url, attrs):
         print('处理二级页面，没有找到electronic edition链接')
     for raw_url in links:
         paper_dict = handle_third_page(raw_url.get('href'), attrs)
-        # tmp = raw_url.find_parent('li', class_='drop-down')
-        # if tmp is not None:
-        #     temp = tmp.find_next_sibling('li', class_='drop-down')
-        #     if temp is not None:
-        #         raw_ris = temp.select_one(
-        #             'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
-        #         )
-        #         if raw_ris is not None:
-        #             download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
+        tmp = raw_url.find_parent('li', class_='drop-down')
+        if tmp is not None:
+            temp = tmp.find_next_sibling('li', class_='drop-down')
+            if temp is not None:
+                raw_ris = temp.select_one(
+                    'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
+                )
+                if raw_ris is not None:
+                    download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
         time.sleep(get_random_uniform(begin=1.0, end=10.0))
 
 
 # 处理三级页面
 def handle_third_page(url, attrs):
-    print('3级', url)
     soup = get_html_str(get_phantomjs_page(url))
     if soup is None:
         print('soup is None', url)
         return None
     # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典
-    tmp_list = soup.find_all('div', class_='authors-info-container')
-    print(tmp_list)
+    tmp_list = soup.select('div[class="authors-info-container"] > span > span > a')
+    authors_dict = dict()
+    for tmp in tmp_list:
+        affiliation_dict = dict()
+        author_name = tmp.find_next('span')
+        if author_name is not None:
+            author_name = re.sub(r'[\._$]', ' ', author_name.get_text())
+        institute = tmp.get('qtip-text')
+        if institute is not None:
+            institute = re.sub(r'amp;', '', institute)
+            data_list = re.split(r',', institute)
+            affiliation_dict['affiliation'] = institute
+            affiliation_dict['affiliation_name'] = data_list[0]
+            affiliation_dict['affiliation_country'] = data_list[-1]
+            authors_dict[author_name] = affiliation_dict
+        else:
+            authors_dict[author_name] = dict()
+    data_dict['author'] = authors_dict
+    return data_dict  # 返回数据字典（类别、等级、作者信息）
 
 
 # 爬取ieee的论文信息
@@ -98,3 +114,4 @@ def run_ieee():
 
 if __name__ == '__main__':
     run_ieee()
+    # handle_third_page('http://ieeexplore.ieee.org/document/7536362/', {})
