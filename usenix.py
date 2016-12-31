@@ -57,11 +57,11 @@ def handle_second_page(url, attrs):
                     download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
         time.sleep(get_random_uniform(begin=60.0, end=300.0))
 
+
 # 处理三级页面
 def handle_third_page(url, attrs):
     soup = get_html_text(url)
     if soup is None:
-        print('soup is None', url)
         return None
     # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典

@@ -34,9 +34,13 @@ def spider_body():
     pool.join()
 
 
-if __name__ == '__main__':
+def init():
     init_dir(log_dir)
     init_dir(root_dir)
+
+
+if __name__ == '__main__':
+    init()
     with open(logfile, 'a+', encoding='utf-8') as f:
         print('main_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')))
         f.write('main_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')

@@ -192,6 +192,8 @@ def get_html_text(url):
             print('get_html_text出现异常！' + str(e))
             with open(logfile, 'a+', encoding='utf-8') as f:
                 f.write('get_html_text出现异常！第{0}次尝试'.format(i) + str(e) + '\n')
+            time.sleep(5)
+            return None
 
 
 def get_html_str(str):
