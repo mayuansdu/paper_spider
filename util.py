@@ -49,7 +49,9 @@ def get_phantomjs_page(url):
 # 连接到mongodb 默认使用数据库spider
 def get_database_connect():
     conn = MongoClient(host='127.0.0.1', port=27017)
-    return conn.paper_spider
+    db = conn.paper_spider
+    db.authenticate('ps', 'ps*sp!')
+    return db
 
 
 # 返回生成的随机数,范围是[begin, end]
