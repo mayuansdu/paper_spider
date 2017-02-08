@@ -32,7 +32,7 @@ def get_phantomjs():
 def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if (phantomjs is not None):
-        brower = webdriver.PhantomJS(executable_path='./phantomjs/linux/64/bin/phantomjs')
+        brower = webdriver.PhantomJS(executable_path=phantomjs)
         try:
             brower.get(url)
             page = brower.page_source
