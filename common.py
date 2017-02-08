@@ -108,6 +108,24 @@ journal_ieee = {
     ],
 }
 
+ieee_updates_url = {
+    'journals': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedPeriodicalsIssues.jsp',
+    ],
+    'conferences': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedConferencesIssues.jsp',
+    ],
+    'standards': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedStandardsIssues.jsp',
+    ],
+    'books': [
+        'http://ieeexplore.ieee.org/xpl/bookContentUpdates',
+    ],
+    'courses': [
+        'http://ieeexplore.ieee.org/xpl/courseContentUpdates',
+    ],
+}
+
 conference_usenix = {
     'a': [
         'http://dblp.uni-trier.de/db/conf/uss/',
