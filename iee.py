@@ -71,21 +71,20 @@ def handle_third_page(urls):
         if page_content is None:
             print('3级页面无法获取')
             return None
-        print(page_content.title)
-        # data_dict['title'] = page_content.title.string
-        # ul = page_content.find('ul', class_= 'doc-all-keywords-list')
-        # if ul is None:
-        #     print('无法找到ul')
-        # else:
-        #     print(ul)
-        # spans = ul.find_all_next('span')
-        # keywords = list()
-        # for span in spans:
-        #     temp = span.find_next('a')
-        #     if temp is not None:
-        #         keywords.append(temp.get_text().strip())
-        # data_dict['keywords'] = keywords
-        # print(data_dict)
+        if page_content.title is not None:
+            data_dict['title'] = page_content.title.string
+        ul = page_content.find('ul', class_= 'doc-all-keywords-list')
+        if ul is None:
+            print('无法找到ul')
+            return None
+        spans = ul.find_all_next('span')
+        keywords = list()
+        for span in spans:
+            temp = span.find_next('a', class_='ng-binding')
+            if temp is not None:
+                keywords.append(temp.get_text().strip())
+        data_dict['keywords'] = keywords
+        print(data_dict)
 
 
 # 采集ieee更新的内容
@@ -114,4 +113,4 @@ def run_iee():
 
 if __name__ == '__main__':
     # run_iee()
-    handle_third_page('http://ieeexplore.ieee.org/document/7842913/')
+    handle_third_page(['http://ieeexplore.ieee.org/document/7842913/',])
