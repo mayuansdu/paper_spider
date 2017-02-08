@@ -108,6 +108,24 @@ journal_ieee = {
     ],
 }
 
+ieee_updates_url = {
+    'journals': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedPeriodicalsIssues.jsp',
+    ],
+    'conferences': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedConferencesIssues.jsp',
+    ],
+    'standards': [
+        'http://ieeexplore.ieee.org/xpl/mostRecentWeeklyUpdatedStandardsIssues.jsp',
+    ],
+    'books': [
+        'http://ieeexplore.ieee.org/xpl/bookContentUpdates',
+    ],
+    'courses': [
+        'http://ieeexplore.ieee.org/xpl/courseContentUpdates',
+    ],
+}
+
 conference_usenix = {
     'a': [
         'http://dblp.uni-trier.de/db/conf/uss/',
@@ -197,6 +215,8 @@ def get_html_text(url):
 
 
 def get_html_str(str):
+    if str is None:
+        return None
     soup = BeautifulSoup(str, 'html.parser')
     return soup
 

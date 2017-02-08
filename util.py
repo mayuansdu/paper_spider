@@ -7,9 +7,9 @@ from pymongo import MongoClient
 from selenium import webdriver
 
 phantomjs_list =[
-    'phantomjs/windows/bin/phantomjs.exe',   # windows环境的phantomjs
-    'phantomjs/linux/64/bin/phantomjs',      # 64位linux环境的phantomjs
-    'phantomjs/linux/32/bin/phantomjs',      # 32位linux环境的phantomjs
+    './phantomjs/windows/bin/phantomjs.exe',   # windows环境的phantomjs
+    './phantomjs/linux/64/bin/phantomjs',      # 64位linux环境的phantomjs
+    './phantomjs/linux/32/bin/phantomjs',      # 32位linux环境的phantomjs
 ]
 
 
@@ -32,7 +32,7 @@ def get_phantomjs():
 def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if (phantomjs is not None):
-        brower = webdriver.PhantomJS(executable_path=phantomjs)
+        brower = webdriver.PhantomJS(executable_path='./phantomjs/linux/64/bin/phantomjs')
         try:
             brower.get(url)
             page = brower.page_source
