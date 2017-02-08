@@ -215,6 +215,8 @@ def get_html_text(url):
 
 
 def get_html_str(str):
+    if str is None:
+        return None
     soup = BeautifulSoup(str, 'html.parser')
     return soup
 

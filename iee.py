@@ -43,6 +43,7 @@ def handle_first_page(url):
 
 # 处理2级页面
 def handle_second_page(urls):
+    links = list()
     for url in urls:
         print('2级页面：' + url)
         page_content = get_html_str(get_phantomjs_page(url))
@@ -51,15 +52,39 @@ def handle_second_page(urls):
             return None
         ul = page_content.find('ul', class_='results')
         if ul is not None:
-            links = list()
             divs = ul.find_all_next('div', class_='txt')
             for div in divs:
                 temp = div.find_next('a', class_='art-abs-url')
                 if temp is not None:
                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
-            print('----------------------2级页面-----------------------------')
-            print(links)
-        time.sleep(get_random_uniform(begin=2, end=5))
+        break
+        # time.sleep(get_random_uniform(begin=2, end=15))
+    handle_third_page(links)
+
+
+def handle_third_page(urls):
+    print('链接总数为:' + str(len(urls)))
+    for url in urls:
+        print('3级页面:' + url)
+        data_dict = dict()
+        page_content = get_html_str(get_phantomjs_page(url))
+        if page_content is None:
+            print('3级页面无法获取')
+            return None
+        data_dict['title'] = page_content.title.string
+        ul = page_content.find('ul', class_= 'doc-all-keywords-list')
+        if ul is None:
+            print('无法找到ul')
+        else:
+            print(ul)
+        spans = ul.find_all_next('span')
+        keywords = list()
+        for span in spans:
+            temp = span.find_next('a')
+            if temp is not None:
+                keywords.append(temp.get_text().strip())
+        data_dict['keywords'] = keywords
+        print(data_dict)
 
 
 # 采集ieee更新的内容
@@ -88,3 +113,4 @@ def run_iee():
 
 if __name__ == '__main__':
     run_iee()
+    handle_third_page('http://ieeexplore.ieee.org/document/7842913/')
