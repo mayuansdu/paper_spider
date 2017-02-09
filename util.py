@@ -3,6 +3,7 @@
 import sys
 import platform
 import random
+import time
 from pymongo import MongoClient
 from selenium import webdriver
 
@@ -33,15 +34,24 @@ def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if (phantomjs is not None):
         brower = webdriver.PhantomJS(executable_path=phantomjs)
-        try:
-            brower.get(url)
-            page = brower.page_source
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
-        else:
-            return page
-        finally:
-            brower.quit()
+        brower.set_page_load_timeout(60)  # seconds 设置页面完全加载时间，超时则抛出异常
+        for i in range(1, 6):   # 如果连接异常，尝试5次
+            try:
+                print('第' + str(i) + '次尝试请求页面' + url)
+                brower.get(url)
+                page = brower.page_source
+                get_page = True # 已经获得完整页面数据
+            except:
+                print('phantomjs出现错误:', sys.exc_info()[0])
+                get_page = False
+                time.sleep(get_random_uniform(begin=2, end=8))
+            finally:
+                if get_page:
+                    brower.quit()
+                    return page
+                elif 5 == i:
+                    brower.quit()
+                    return None
     else:
         print('无法获得phantomjs')
 
