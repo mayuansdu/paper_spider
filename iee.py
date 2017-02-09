@@ -48,7 +48,7 @@ def handle_second_page(urls):
         print('2级页面：' + url)
         page_content = get_html_str(get_phantomjs_page(url))
         if page_content is None:
-            print('2级页面无法获取')
+            print('2级页面' + url + '无法获取')
             return None
         ul = page_content.find('ul', class_='results')
         if ul is not None:
@@ -57,9 +57,37 @@ def handle_second_page(urls):
                 temp = div.find_next('a', class_='art-abs-url')
                 if temp is not None:
                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
-        break
+        # 找到分页代码，获得分页总数，并向分页链接请求页面内容
+        pagination = page_content.find('div', class_='pagination')
+        if pagination is not None:
+            a_list = pagination.select('a[aria-label^="Pagination Page"]')
+            if a_list:
+                pageNumber = a_list[-1].get_text().strip()
+                if pageNumber is not None:
+                    pageNumber = int(pageNumber)
+                    url_list = list()
+                    for number in range(2, pageNumber+1):
+                        url_list.append(url + '&pageNumber=' + str(number))
+                    for tmp_url in url_list:
+                        page_content = get_html_str(get_phantomjs_page(tmp_url))
+                        if page_content is None:
+                            print('2级页面' + url + '无法获取')
+                            return None
+                        ul = page_content.find('ul', class_='results')
+                        if ul is not None:
+                            divs = ul.find_all_next('div', class_='txt')
+                            for div in divs:
+                                temp = div.find_next('a', class_='art-abs-url')
+                                if temp is not None:
+                                    links.append('http://ieeexplore.ieee.org' + temp.get('href'))
+        else:
+            print('没有找到分页代码' + url)
+        print(url + '的链接数目为: ' + str(len(links)))
+        for link in links:
+            print(link)
+        # break
         # time.sleep(get_random_uniform(begin=2, end=15))
-    handle_third_page(links)
+    # handle_third_page(links)
 
 
 def handle_third_page(urls):
@@ -84,6 +112,31 @@ def handle_third_page(urls):
             if temp is not None:
                 keywords.append(temp.get_text().strip())
         data_dict['keywords'] = keywords
+        h2 = page_content.find('h2', text='Authors')
+        if h2 is None:
+            print('没有找到h2')
+        else:
+            div = h2.find_next_sibling('div', class_='ng-scope')
+            if div is not None:
+                temp = div.select('a[href^="/search/searchresult.jsp?searchWithin="]')
+                if temp is not None:
+                    authors_dict = dict()    # 保存多个作者信息到字典
+                    for a in temp:
+                        affiliation_dict = dict()
+                        span = a.find_next('span', class_='ng-binding')
+                        if span is not None:
+                            author_name = span.get_text().strip()
+                            tmp = a.parent.find_next_sibling('div', class_='ng-binding')
+                            if tmp is not None:
+                                affiliation = tmp.get_text().strip()
+                                data_list = re.split(r',', affiliation)
+                                affiliation_dict['affiliation'] = affiliation
+                                affiliation_dict['affiliation_name'] = data_list[-2]
+                                affiliation_dict['affiliation_country'] = data_list[-1]
+                            authors_dict[author_name] = affiliation_dict
+                    data_dict['author'] = authors_dict
+            else:
+                print('没有找到div')
         print(data_dict)
 
 
@@ -111,6 +164,25 @@ def run_iee():
             f.write('update_ieee正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
 
 
+def fun():
+    for i in range(1, 6):  # 如果连接异常，尝试5次
+        try:
+            print('获取页面')
+            get_page = True
+        except:
+            print('phantomjs出现错误:')
+            get_page = False
+        finally:
+            if get_page:
+                print('拿到页面')
+                return 'get_page'
+            elif 5 == i:
+                print('这是第' + str(i) + '此尝试')
+                print('关闭游览器')
+                return 'no_page'
+
+
 if __name__ == '__main__':
+    # print(fun())
     # run_iee()
-    handle_third_page(['http://ieeexplore.ieee.org/document/7842913/',])
+    handle_second_page(['http://ieeexplore.ieee.org/xpl/tocresult.jsp?isnumber=7842910',])
