@@ -37,7 +37,6 @@ def get_phantomjs_page(url):
         brower.set_page_load_timeout(120)  # seconds 设置页面完全加载时间，超时则抛出异常
         for i in range(1, 6):   # 如果连接异常，尝试5次
             try:
-                print('第' + str(i) + '次尝试请求页面' + url)
                 brower.get(url)
                 page = brower.page_source
                 get_page = True # 已经获得完整页面数据
