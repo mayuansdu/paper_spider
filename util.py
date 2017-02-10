@@ -61,7 +61,7 @@ def get_phantomjs_page(url):
 def get_database_connect():
     conn = MongoClient(host='127.0.0.1', port=27017)
     db = conn.paper_spider
-    db.authenticate('ps', 'ps*sp!')
+    # db.authenticate('ps', 'ps*sp!')
     return db
 
 
