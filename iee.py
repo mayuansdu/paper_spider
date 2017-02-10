@@ -136,6 +136,7 @@ def handle_third_page(urls):
                         span = a.find_next('span', class_='ng-binding')
                         if span is not None:
                             author_name = span.get_text().strip()
+                            author_name = re.sub(r'[._$]', ' ', author_name)
                             tmp = a.parent.find_next_sibling('div', class_='ng-binding')
                             if tmp is not None:
                                 affiliation = tmp.get_text().strip()
@@ -220,4 +221,4 @@ def run_iee():
 if __name__ == '__main__':
     run_iee()
     # handle_second_page(['http://ieeexplore.ieee.org/xpl/tocresult.jsp?isnumber=7842910',])
-    # handle_third_page(['http://ieeexplore.ieee.org/document/7140733/',])
+    # handle_third_page(['http://ieeexplore.ieee.org/document/7847576/',])
