@@ -91,7 +91,7 @@ def handle_second_page(urls):
         else:
             print('没有找到分页代码' + url)
         break
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=10.0, end=300.0))
     handle_third_page(links)    # 进一步处理已采集到的当前页面上的所有3级页面的链接
 
 
@@ -142,8 +142,8 @@ def handle_third_page(urls):
                                 affiliation = tmp.get_text().strip()
                                 data_list = re.split(r',', affiliation)
                                 affiliation_dict['affiliation'] = affiliation
-                                affiliation_dict['affiliation_name'] = data_list[-2]
-                                affiliation_dict['affiliation_country'] = data_list[-1]
+                                if data_list is not None:
+                                    affiliation_dict['affiliation_country'] = data_list[-1]
                             authors_dict[author_name] = affiliation_dict
                     data_dict['author'] = authors_dict
         # 获取论文参考信息
