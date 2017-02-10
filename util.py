@@ -44,14 +44,15 @@ def get_phantomjs_page(url):
             except:
                 print('phantomjs出现错误:', sys.exc_info()[0])
                 get_page = False
-                time.sleep(get_random_uniform(begin=5.0, end=10.0))
             finally:
-                if get_page:
+                if get_page:    # 获得完整页面数据 则返回
                     brower.quit()
                     return page
-                elif 5 == i:
+                elif 5 == i:    # 最后一次请求也未得到完整页面数据，则退出phantomjs 返回None
                     brower.quit()
                     return None
+                else:           # 未获得完整页面数据，则随机休眠一段时间，再次发送请求
+                    time.sleep(get_random_uniform(begin=5.0, end=10.0))
     else:
         print('无法获得phantomjs')
 
