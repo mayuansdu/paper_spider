@@ -34,7 +34,7 @@ def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if (phantomjs is not None):
         brower = webdriver.PhantomJS(executable_path=phantomjs)
-        brower.set_page_load_timeout(60)  # seconds 设置页面完全加载时间，超时则抛出异常
+        brower.set_page_load_timeout(120)  # seconds 设置页面完全加载时间，超时则抛出异常
         for i in range(1, 6):   # 如果连接异常，尝试5次
             try:
                 print('第' + str(i) + '次尝试请求页面' + url)
@@ -44,7 +44,7 @@ def get_phantomjs_page(url):
             except:
                 print('phantomjs出现错误:', sys.exc_info()[0])
                 get_page = False
-                time.sleep(get_random_uniform(begin=2, end=8))
+                time.sleep(get_random_uniform(begin=5.0, end=10.0))
             finally:
                 if get_page:
                     brower.quit()
