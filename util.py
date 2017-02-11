@@ -16,14 +16,12 @@ phantomjs_list =[
 
 # 根据运行平台,调用不同的phantomjs
 def get_phantomjs():
+    phantomjs = phantomjs_list[1]	# 默认使用Linux 32bit
     bits, os = platform.architecture()
     if (os == 'WindowsPE'): #Windows系统
         phantomjs = phantomjs_list[0]
-    else: # Linux系统
-        if (bits == '64bit'):
-            phantomjs = phantomjs_list[2]
-        else:
-            phantomjs = phantomjs_list[1]
+    elif (bits == '64bit'): # Linux系统
+        phantomjs = phantomjs_list[2]
     return phantomjs
 
 
