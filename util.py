@@ -9,8 +9,8 @@ from selenium import webdriver
 
 phantomjs_list =[
     './phantomjs/windows/bin/phantomjs.exe',   # windows环境的phantomjs
-    './phantomjs/linux/64/bin/phantomjs',      # 64位linux环境的phantomjs
     './phantomjs/linux/32/bin/phantomjs',      # 32位linux环境的phantomjs
+    './phantomjs/linux/64/bin/phantomjs',      # 64位linux环境的phantomjs
 ]
 
 
@@ -19,13 +19,11 @@ def get_phantomjs():
     bits, os = platform.architecture()
     if (os == 'WindowsPE'): #Windows系统
         phantomjs = phantomjs_list[0]
-    elif (os == 'ELF'): # Linux系统
+    else: # Linux系统
         if (bits == '64bit'):
-            phantomjs = phantomjs_list[1]
-        else:
             phantomjs = phantomjs_list[2]
-    else:
-        print('没有%s%s的phantomJS' % (os, bits))
+        else:
+            phantomjs = phantomjs_list[1]
     return phantomjs
 
 
