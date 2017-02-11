@@ -14,6 +14,10 @@ root_dir = base_dir + 'updates/ieee/'
 # 程序运行日志文件
 logfile = log_dir + 'update_ieee.txt'
 
+# 程序在START_HOUR ~ END_HOUR 之间运行
+START_HOUR = 7
+END_HOUR = 22
+
 
 # 处理1级页面
 def handle_first_page(url):
@@ -90,7 +94,6 @@ def handle_second_page(urls):
                                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
         else:
             print('没有找到分页代码' + url)
-        break
         time.sleep(get_random_uniform(begin=10.0, end=300.0))
     handle_third_page(links)    # 进一步处理已采集到的当前页面上的所有3级页面的链接
 
@@ -203,19 +206,24 @@ def update_ieee(urls):
 
 
 def run_iee():
-    init_dir(log_dir)
-    init_dir(root_dir)
-    with open(logfile, 'a+', encoding='utf-8') as f:
-        f.write('update_ieee正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
-    try:
-        update_ieee(ieee_updates_url)
-    except Exception as e:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            traceback.print_exc(file=f)
-            f.write('update_ieee异常停止%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + str(e) + '\n\n')
-    else:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('update_ieee正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+    while True: # 每天运行一次
+        hour = int(time.strftime('%H'))
+        if START_HOUR <= hour <= END_HOUR:
+            init_dir(log_dir)
+            init_dir(root_dir)
+            with open(logfile, 'a+', encoding='utf-8') as f:
+                f.write('update_ieee正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
+            try:
+                update_ieee(ieee_updates_url)
+            except Exception as e:
+                with open(logfile, 'a+', encoding='utf-8') as f:
+                    traceback.print_exc(file=f)
+                    f.write('update_ieee异常停止%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + str(e) + '\n\n')
+            else:
+                with open(logfile, 'a+', encoding='utf-8') as f:
+                    f.write('update_ieee正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+        else:   # 休眠1小时
+            time.sleep(1*60*60)
 
 
 if __name__ == '__main__':
