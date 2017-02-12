@@ -57,7 +57,6 @@ def handle_first_page(url):
 def handle_second_page(urls):
     links = list()
     for url in urls:
-        print('2级页面：' + url)
         page_content = get_html_str(get_phantomjs_page(url))
         if page_content is None:
             print('2级页面' + url + '无法获取')
@@ -94,7 +93,7 @@ def handle_second_page(urls):
                                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
         else:
             print('没有找到分页代码' + url)
-        time.sleep(get_random_uniform(begin=10.0, end=300.0))
+        time.sleep(get_random_uniform(begin=1.0, end=120.0))
     handle_third_page(links)    # 进一步处理已采集到的当前页面上的所有3级页面的链接
 
 
@@ -183,7 +182,7 @@ def handle_third_page(urls):
                         citations.append(div_temp.get_text().strip())
             data_dict['citations'] = citations
         write_to_database(data_dict)
-        time.sleep(get_random_uniform(begin=10.0, end=300.0))
+        time.sleep(get_random_uniform(begin=1.0, end=120.0))
 
 
 def write_to_database(data):
@@ -228,5 +227,3 @@ def run_iee():
 
 if __name__ == '__main__':
     run_iee()
-    # handle_second_page(['http://ieeexplore.ieee.org/xpl/tocresult.jsp?isnumber=7842910',])
-    # handle_third_page(['http://ieeexplore.ieee.org/document/7847576/',])
