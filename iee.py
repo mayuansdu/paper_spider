@@ -182,7 +182,7 @@ def handle_third_page(urls):
                         citations.append(div_temp.get_text().strip())
             data_dict['citations'] = citations
         write_to_database(data_dict)
-        time.sleep(get_random_uniform(begin=1.0, end=20.0))
+        time.sleep(get_random_uniform(begin=1.0, end=10.0))
 
 
 def write_to_database(data):
