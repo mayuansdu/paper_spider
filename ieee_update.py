@@ -209,7 +209,7 @@ def update_ieee(urls):
                 handle_first_page(url)
 
 
-def run_iee():
+def run_ieee_update():
     while True: # 每天运行一次
         hour = int(time.strftime('%H'))
         if START_HOUR <= hour <= END_HOUR:
@@ -231,4 +231,4 @@ def run_iee():
 
 
 if __name__ == '__main__':
-    run_iee()
+    run_ieee_update()
