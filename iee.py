@@ -45,12 +45,12 @@ def handle_first_page(url):
                 lis = ul.find_all_next('li', class_='noAbstract')
                 urls = list(map(lambda li: 'http://ieeexplore.ieee.org/xpl/' + li.find_next('a').get('href'), lis))
                 handle_second_page(urls)
+                # 本次采集数据完成，将本次更新日期保存到数据库
+                collection.update_one({'name': 'setting'},{'$set': {'last_update_time': update_time, 'status': 'finished'}})
         elif update_time <= last_update_time:
             print(update_time + '的内容已经更新')
         else:
             print('没有得到内容更新日期')
-    # 本次采集数据完成，将本次更新日期保存到数据库
-    collection.update_one({'name':'setting'}, {'$set': {'last_update_time': update_time, 'status': 'finished'}})
 
 
 # 处理2级页面
