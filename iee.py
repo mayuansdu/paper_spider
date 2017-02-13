@@ -120,7 +120,7 @@ def handle_third_page(urls):
             div = date.find_parent('div')
             if div is not None:
                 date = re.split(r':', div.get_text())[-1].strip()
-                data_dict['publication'] = date
+                data_dict['publication_date'] = date
         # 采集论文关键词信息
         ul = page_content.find('ul', class_= 'doc-all-keywords-list')
         if ul is not None:
