@@ -89,7 +89,7 @@ def handle_second_page(urls):
                                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
         else:
             print('没有找到分页代码' + url)
-        time.sleep(get_random_uniform(begin=1.0, end=10.0))
+        time.sleep(get_random_uniform(begin=1.0, end=5.0))
     handle_third_page(links)    # 进一步处理已采集到的当前页面上的所有3级页面的链接
 
 
