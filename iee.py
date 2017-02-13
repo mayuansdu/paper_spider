@@ -38,7 +38,7 @@ def handle_first_page(url):
         else:
             last_update_time = '20170101'
             collection.insert(dict({'name':'setting','last_update_time':last_update_time,'this_update_time':last_update_time}))
-        if update_time > last_update_time:  # IEEE内容已更新，且本地尚未采集此次数据
+        if update_time > last_update_time:  # IEEE内容已更新，但是本地尚未采集此次数据
             collection.update_one({'name':'setting'}, {'$set': {'this_update_time': update_time, 'status': 'unfinished'}})
             ul = page_content.find('ul', class_='Browsing')
             if ul is not None:
@@ -47,10 +47,6 @@ def handle_first_page(url):
                 handle_second_page(urls)
                 # 本次采集数据完成，将本次更新日期保存到数据库
                 collection.update_one({'name': 'setting'},{'$set': {'last_update_time': update_time, 'status': 'finished'}})
-        elif update_time <= last_update_time:
-            print(update_time + '的内容已经更新')
-        else:
-            print('没有得到内容更新日期')
 
 
 # 处理2级页面
@@ -98,7 +94,6 @@ def handle_second_page(urls):
 
 
 def handle_third_page(urls):
-    print('链接总数为:' + str(len(urls)))
     for url in urls:
         data_dict = dict()
         page_content = get_html_str(get_phantomjs_page(url))
