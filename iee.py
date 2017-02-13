@@ -110,6 +110,17 @@ def handle_third_page(urls):
         # 采集论文名
         if page_content.title is not None:
             data_dict['title'] = page_content.title.string[:-22].strip()
+        # 采集论文摘要信息
+        abstract = page_content.find('div', class_='abstract-text ng-binding')
+        if abstract is not None:
+            data_dict['abstract'] = abstract.get_text()
+        # 采集论文发表日期
+        date = page_content.find('strong', text='Date of Publication:')
+        if date is not None:
+            div = date.find_parent('div')
+            if div is not None:
+                date = re.split(r':', div.get_text())[-1].strip()
+                data_dict['publication'] = date
         # 采集论文关键词信息
         ul = page_content.find('ul', class_= 'doc-all-keywords-list')
         if ul is not None:
