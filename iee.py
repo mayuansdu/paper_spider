@@ -190,7 +190,6 @@ def write_to_database(data):
         db = get_database_connect()
         db.update_ieee.insert(data)
     except Exception as e:
-        print('写入数据库出错！', e)
         print('当前数据字典为：', data)
         with open(logfile, 'a+', encoding='utf-8') as f:
             f.write('update_ieee:' + '写入数据库出错！' + str(e) + '\n')
