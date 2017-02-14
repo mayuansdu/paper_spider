@@ -1,7 +1,7 @@
 .idea/
 __pycache__/
-env/
 file/
 url/
 log/
 ghostdriver.log
+about.py
