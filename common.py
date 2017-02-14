@@ -1,18 +1,26 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-import re
-import time
-import requests
+import os, re, time, requests, logging, logging.handlers
 from bs4 import BeautifulSoup
 from util import get_database_connect
 
 # 存放爬取到的文件的根目录
 base_dir = './file/'
-
 # 程序运行日志文件根目录
 log_dir = './log/'
-logfile = log_dir + 'log_common.txt'
+logfile = log_dir + 'log_common.log'
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，单位:M。默认最大为50M
+# 配置日志: 2个日志文件副本
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('common')
+
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
+handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s [ %(name)s : %(levelname)s ] %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -207,9 +215,7 @@ def get_html_text(url):
             soup = BeautifulSoup(r.text, 'html.parser')
             return soup
         except Exception as e:
-            print('get_html_text出现异常！' + str(e))
-            with open(logfile, 'a+', encoding='utf-8') as f:
-                f.write('get_html_text出现异常！第{0}次尝试'.format(i) + str(e) + '\n')
+            logger.exception('第%s次 get_html_text出现异常！', i)
             time.sleep(5)
     return None
 
@@ -226,9 +232,7 @@ def download_paper_info(url, root_dir, logfile, attrs):
     filename = re.split(r'/', url)[-1]
     page_content = get_html_text(url)
     if page_content is None:
-        print('出现异常的网址:', url)
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('download_paper_info:' + '出错！' + url + '\n')
+        logger.error('download_paper_info出错:' + url)
         return None
     data = page_content.get_text()
     if data is not None:
@@ -255,10 +259,7 @@ def write_to_database(filepath, logfile, attrs):
             else:
                 db.others.insert(attrs)
     except Exception as e:
-        print('写入数据库出错！', e, filepath)
-        print('当前数据字典为：', attrs)
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath + '\n')
+        logger.exception('写入数据库出错！')
 
 
 # 处理论文RIS文本内容
@@ -285,6 +286,4 @@ def handle_ris(filepath, logfile, attrs):
                     if 'url' not in attrs.keys():
                         attrs['url'] = url
     else:
-        print(filepath, '文件不存在！')
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('handle_ris:' + filepath + '文件不存在！' + '\n')
+        logger.error(filepath + '文件不存在！')

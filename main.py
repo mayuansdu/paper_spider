@@ -1,27 +1,33 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import time
-import traceback
+import time, traceback, logging, logging.handlers
 from elsevier import run_elsevier
 from usenix import run_usenix
 from isoc import run_isoc
 from acm import run_acmdl
 from springer import run_springer
 from ieee import run_ieee
+from ieee_update import run_ieee_update
 from multiprocessing import Pool
 from common import init_dir, log_dir, base_dir
 
 root_dir = base_dir #保存下载文件的主目录
+# 记录程序运行的日志文件设定
+logfile = log_dir + 'log_main.log'
+logfile_size = 100 * 1024 * 1024  # 日志文件的最大容量，单位 M。默认最大为100M
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
 
-# 程序运行日志文件
-logfile = log_dir + 'log_main.txt'
 
 funcitons = [
-    run_isoc,
-    run_usenix,
-    run_elsevier,
+    # run_isoc,
+    # run_usenix,
+    # run_elsevier,
     run_acmdl,
     run_springer,
+    run_ieee_update,
     run_ieee,
 ]
 

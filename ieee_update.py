@@ -1,6 +1,6 @@
 #!usr/bin/env python
 # -*- coding:utf-8 -*-
-import re, time, traceback, logging, logging.handlers
+import re, time, logging, logging.handlers
 from common import base_dir, log_dir, ieee_updates_url, get_html_str,\
     init_dir
 from util import get_phantomjs_page, get_database_connect, get_random_uniform

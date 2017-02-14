@@ -1,9 +1,6 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import re
-import copy
-import time
-import traceback
+import re, copy, time, traceback, logging, logging.handlers
 from common import base_dir, log_dir, conference_ieee, journal_ieee, get_html_text,\
     get_html_str, init_dir, download_paper_info
 from util import get_random_uniform, get_phantomjs_page

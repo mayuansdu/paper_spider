@@ -1,11 +1,23 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys
-import platform
-import random
-import time
+import sys, platform, random, time, logging, logging.handlers
 from pymongo import MongoClient
 from selenium import webdriver
+
+# 记录程序运行的日志文件设定
+logfile = './log/log_util.log'
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，单位:M。默认最大为50M
+# 配置日志: 2个日志文件副本
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('util')
+
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
+handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s [ %(name)s : %(levelname)s ] %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 phantomjs_list =[
     './phantomjs/windows/bin/phantomjs.exe',   # windows环境的phantomjs
@@ -22,6 +34,8 @@ def get_phantomjs():
         phantomjs = phantomjs_list[0]
     elif (bits == '64bit'): # Linux系统
         phantomjs = phantomjs_list[2]
+    else:
+        logger.info('没有适合{os}{bits}的phantomjs!'.format(os=os, bits=bits))
     return phantomjs
 
 
@@ -37,7 +51,7 @@ def get_phantomjs_page(url):
                 page = brower.page_source
                 get_page = True # 已经获得完整页面数据
             except:
-                print('phantomjs出现错误:', sys.exc_info()[0])
+                logger.exception('phantomjs出现错误:')
                 get_page = False
             finally:
                 if get_page:    # 获得完整页面数据 则返回
@@ -45,11 +59,12 @@ def get_phantomjs_page(url):
                     return page
                 elif 5 == i:    # 最后一次请求也未得到完整页面数据，则退出phantomjs 返回None
                     brower.quit()
+                    logger.error('无法获得此链接的数据:' + str(url))
                     return None
                 else:           # 未获得完整页面数据，则随机休眠一段时间，再次发送请求
                     time.sleep(get_random_uniform(begin=5.0, end=10.0))
     else:
-        print('无法获得phantomjs')
+        logger.error('无法获得phantomjs')
 
 
 # 连接到mongodb 默认使用数据库paper_spider
