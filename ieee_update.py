@@ -1,19 +1,26 @@
 #!usr/bin/env python
 # -*- coding:utf-8 -*-
-import re
-import time
-import traceback
+import re, time, traceback, logging, logging.handlers
 from common import base_dir, log_dir, ieee_updates_url, get_html_str,\
     init_dir
 from util import get_phantomjs_page, get_database_connect, get_random_uniform
 
-
 # 保存下载文件的目录
 root_dir = base_dir + 'updates/ieee/'
+# 记录程序运行的日志文件设定
+logfile = log_dir + 'update_ieee.log'
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，单位:M。默认最大为50M
+# 配置日志: 2个日志文件副本
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('ieee_update')
 
-# 程序运行日志文件
-logfile = log_dir + 'update_ieee.txt'
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
+handler.setLevel(logging.INFO)
 
+formatter = logging.Formatter('%(asctime)s [ %(name)s : %(levelname)s ] %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 # 程序在START_HOUR ~ END_HOUR 之间运行
 START_HOUR = 7
 END_HOUR = 22
@@ -24,7 +31,7 @@ def handle_first_page(url):
     # 获得一级页面
     page_content = get_html_str(get_phantomjs_page(url))
     if page_content is None:
-        print('page is none')
+        logger.info('没有获得1级页面:' + str(url))
         return None
     options = page_content.find('select', id='updatesDate')
     if options is not None:
@@ -55,7 +62,7 @@ def handle_second_page(urls):
     for url in urls:
         page_content = get_html_str(get_phantomjs_page(url))
         if page_content is None:
-            print('2级页面' + url + '无法获取')
+            logger.info('2级页面无法获取:' + str(url))
             return None
         ul = page_content.find('ul', class_='results')
         if ul is not None:
@@ -78,7 +85,7 @@ def handle_second_page(urls):
                     for tmp_url in url_list:
                         page_content = get_html_str(get_phantomjs_page(tmp_url))
                         if page_content is None:
-                            print('2级页面' + url + '无法获取')
+                            logger.info('2级页面无法获取:' + str(url))
                             return None
                         ul = page_content.find('ul', class_='results')
                         if ul is not None:
@@ -88,7 +95,7 @@ def handle_second_page(urls):
                                 if temp is not None:
                                     links.append('http://ieeexplore.ieee.org' + temp.get('href'))
         else:
-            print('没有找到分页代码' + url)
+            logger.info('处理2级页面时没有找到分页代码:' + str(url))
         time.sleep(get_random_uniform(begin=1.0, end=5.0))
     handle_third_page(links)    # 进一步处理已采集到的当前页面上的所有3级页面的链接
 
@@ -196,9 +203,7 @@ def write_to_database(data):
         db = get_database_connect()
         db.update_ieee.insert(data)
     except Exception as e:
-        print('当前数据字典为：', data)
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('update_ieee:' + '写入数据库出错！' + str(e) + '\n')
+        logger.exception('写入数据库出错！')
 
 
 # 采集ieee更新的内容
@@ -210,22 +215,20 @@ def update_ieee(urls):
 
 
 def run_ieee_update():
-    while True: # 每天运行一次
+    while True:
         hour = int(time.strftime('%H'))
         if START_HOUR <= hour <= END_HOUR:
             init_dir(log_dir)
             init_dir(root_dir)
-            with open(logfile, 'a+', encoding='utf-8') as f:
-                f.write('update_ieee正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
             try:
+                logger.warning('update_ieee正常启动！')
                 update_ieee(ieee_updates_url)
             except Exception as e:
-                with open(logfile, 'a+', encoding='utf-8') as f:
-                    traceback.print_exc(file=f)
-                    f.write('update_ieee异常停止%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + str(e) + '\n\n')
+                logger.exception('update_ieee异常停止！')
             else:
-                with open(logfile, 'a+', encoding='utf-8') as f:
-                    f.write('update_ieee正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+                sleep_time = get_random_uniform(begin=30*60, end=1*60*60)
+                logger.warning('update_ieee正常停止！即将休眠大约{:.2f}分钟...'.format(sleep_time / 60))
+                time.sleep(sleep_time) # 本次更新已经完成，休眠0.5h~1.0h
         else:   # 休眠1小时
             time.sleep(1*60*60)
 
