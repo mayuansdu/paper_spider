@@ -102,7 +102,6 @@ def handle_second_page(urls):
 
 def handle_third_page(urls):
     for url in urls:
-        print('3级页面为：' + url)
         data_dict = dict()
         page_content = get_html_str(get_phantomjs_page(url))
         if page_content is None:
