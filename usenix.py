@@ -1,9 +1,6 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import re
-import copy
-import time
-import traceback
+import re, copy, time, logging, logging.handlers
 from common import base_dir, log_dir, conference_usenix, get_html_text,\
     init_dir, download_paper_info
 from util import get_random_uniform
@@ -12,7 +9,20 @@ from util import get_random_uniform
 root_dir = base_dir + 'usenix/'
 
 # 程序运行日志文件
-logfile = log_dir + 'log_usenix.txt'
+logfile = log_dir + 'log_usenix.log'
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，默认最大为50M
+# 配置日志: 2个日志文件副本
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('usenix')
+
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
+handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s [ %(name)s : %(levelname)s ] %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
 
 
 # 处理一级页面
@@ -20,6 +30,7 @@ def handle_first_page(url, attrs):
     # 获得一级页面
     page_content = get_html_text(url)
     if page_content is None:
+        logger.info('1级页面无法获取：' + str(url))
         return None
     raw_links = page_content.find_all('a', text='[contents]')
     if (raw_links is not None) and (len(raw_links) > 0):
@@ -43,7 +54,7 @@ def handle_second_page(url, attrs):
         raw_links = soup.find_all(text=re.compile(r'electronic edition @'))
     links = map(lambda tmp: tmp.find_parent('a'), raw_links)
     if links is None:
-        print('处理二级页面，没有找到electronic edition链接')
+        logger.info('处理二级页面，没有找到electronic edition链接' + str(url))
     for raw_url in links:
         paper_dict = handle_third_page(raw_url.get('href'), attrs)
         tmp = raw_url.find_parent('li', class_='drop-down')
@@ -62,6 +73,7 @@ def handle_second_page(url, attrs):
 def handle_third_page(url, attrs):
     soup = get_html_text(url)
     if soup is None:
+        logger.info('soup is None:' + str(url))
         return None
     # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典
@@ -102,17 +114,13 @@ def spider_usenix(urls, attrs):
 
 
 def run_usenix():
-    with open(logfile, 'a+', encoding='utf-8') as f:
-        f.write('usenix_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
+    logger.warning('usenix_spider正常启动!')
     try:
         spider_usenix(conference_usenix, attrs={'category': 'conference'})   # 采集会议论文信息
     except Exception as e:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            traceback.print_exc(file=f)
-            f.write('usenix_spider异常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + str(e) + '\n\n')
+        logger.exception('usenix_spider异常停止!')
     else:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('usenix_spider正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+        logger.warning('usenix_spider正常停止!')
 
 
 if __name__ == '__main__':

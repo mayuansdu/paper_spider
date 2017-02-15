@@ -1,10 +1,6 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import re
-import os
-import copy
-import time
-import traceback
+import re, os, copy, time, logging, logging.handlers
 from common import base_dir, log_dir, conference_isoc, get_html_text,\
     init_dir
 from util import get_random_uniform, get_database_connect
@@ -13,7 +9,19 @@ from util import get_random_uniform, get_database_connect
 root_dir = base_dir + 'isoc/'
 
 # 程序运行日志文件
-logfile = log_dir + 'log_isoc.txt'
+logfile = log_dir + 'log_isoc.log'
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，默认最大为50M
+# 配置日志: 2个日志文件副本
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('isoc')
+
+handler = logging.handlers.RotatingFileHandler(filename=logfile, maxBytes=logfile_size, backupCount=2, encoding='utf-8')
+handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s [ %(name)s : %(levelname)s ] %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
 
 
 # 处理一级页面
@@ -21,6 +29,7 @@ def handle_first_page(url, attrs):
     # 获得一级页面
     page_content = get_html_text(url)
     if page_content is None:
+        logger.info('1级页面无法获取：' + str(url))
         return None
     raw_links = page_content.find_all('a', text='[contents]')
     if (raw_links is not None) and (len(raw_links) > 0):
@@ -45,7 +54,7 @@ def handle_second_page(url, attrs):
         raw_links = soup.find_all(text=re.compile(r'electronic edition @'))
     links = map(lambda tmp: tmp.find_parent('a'), raw_links)
     if links is None:
-        print('处理二级页面，没有找到electronic edition链接')
+        logger.info('处理二级页面，没有找到electronic edition链接' + str(url))
     for raw_url in links:
         tmp = raw_url.find_parent('li', class_='drop-down')
         if tmp is not None:
@@ -64,9 +73,7 @@ def download_paper_info(url, root_dir, logfile, attrs):
     filename = re.split(r'/', url)[-1]
     page_content = get_html_text(url)
     if page_content is None:
-        print('出现异常的网址:', url)
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('download_paper_info:' + '出错！' + url + '\n')
+        logger.error('download_paper_info出错！' + str(url))
         return None
     data = page_content.get_text()
     if data is not None:
@@ -94,10 +101,7 @@ def write_to_database(filepath, logfile, attrs):
             else:
                 db.others.insert(data_dict)
     except Exception as e:
-        print('写入数据库出错！', e, filepath)
-        print('当前数据字典为：', data_dict)
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('write_to_database:' + '写入数据库出错！' + str(e) + filepath + '\n')
+        logger.exception('写入数据库出错！')
 
 
 # 处理论文RIS文本内容
@@ -130,9 +134,7 @@ def handle_ris(filepath, logfile, attrs):
                     author_dict[author] = dict()
             attrs['author'] = author_dict
     else:
-        print(filepath, '文件不存在！')
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('handle_ris:' + filepath + '文件不存在！' + '\n')
+        logger.info('文件不存在！' + str(filepath))
 
 
 # 爬取isoc的论文信息
@@ -146,17 +148,13 @@ def spider_isoc(urls, attrs):
 
 
 def run_isoc():
-    with open(logfile, 'a+', encoding='utf-8') as f:
-        f.write('isoc_spider正常启动:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n')
+    logger.warning('isoc_spider正常启动!')
     try:
         spider_isoc(conference_isoc, attrs={'category': 'conference'})   # 采集会议论文信息
     except Exception as e:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            traceback.print_exc(file=f)
-            f.write('isoc_spider异常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + str(e) + '\n\n')
+        logger.exception('isoc_spider异常停止!')
     else:
-        with open(logfile, 'a+', encoding='utf-8') as f:
-            f.write('isoc_spider正常停止:%s' % (time.strftime('%Y.%m.%d %H:%M:%S')) + '\n\n')
+        logger.warning('isoc_spider正常停止!')
 
 
 if __name__ == '__main__':
