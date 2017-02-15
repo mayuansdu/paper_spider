@@ -63,7 +63,7 @@ def handle_second_page(url, attrs):
                     'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
                 )
                 if raw_ris is not None:
-                    download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
+                    download_paper_info(raw_ris.get('href'), root_dir, paper_dict)
         time.sleep(get_random_uniform(begin=60.0, end=300.0))
     if links is None:
         logger.info('处理二级页面，没有找到electronic edition链接' + str(url))
@@ -77,6 +77,11 @@ def handle_third_page(url, attrs):
         return None
     # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典
+    # 获取论文PDF的下载地址
+    pdf_url = soup.find('a', attrs={'name': 'FullTextPDF'})
+    if pdf_url is not None:
+        pdf_url = 'http://dl.acm.org/' + pdf_url.get('href').strip()
+        data_dict['pdf_url'] = pdf_url
     authors = soup.find_all('a', attrs={'title': 'Author Profile Page'})
     if (authors is not None) and (authors != ''):
         authors_dict = {}
@@ -123,4 +128,5 @@ def run_acmdl():
 
 
 if __name__ == '__main__':
-    run_acmdl()
+    # run_acmdl()
+    handle_third_page('http://dl.acm.org/citation.cfm?doid=2976749.2978341', attrs={'category': 'conference'})
