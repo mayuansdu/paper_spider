@@ -93,6 +93,53 @@ def handle_third_page(url, attrs):
         else:
             authors_dict[author_name] = dict()
     data_dict['author'] = authors_dict
+    # 采集论文摘要信息
+    abstract = soup.find('div', class_='abstract-text ng-binding')
+    if abstract is not None:
+        data_dict['abstract'] = abstract.get_text()
+    # 采集论文关键词信息
+    ul = soup.find('ul', class_='doc-all-keywords-list')
+    if ul is not None:
+        spans = ul.find_all_next('span')
+        keywords = list()
+        for span in spans:
+            temp = span.find_next('a', class_='ng-binding')
+            if temp is not None:
+                keywords.append(temp.get_text().strip())
+        data_dict['keywords'] = keywords
+    # 获取论文参考信息
+    page_content = get_html_str(get_phantomjs_page(url + 'references?ctx=references'))
+    if page_content is not None:
+        h2 = page_content.find('h2', text='References')
+        if h2 is not None:
+            divs = h2.find_next_siblings('div', class_='reference-container ng-scope')
+            references = list()
+            for div in divs:
+                div_temp = div.find_next('div', class_='description ng-binding')
+                if div_temp:
+                    references.append(div_temp.get_text().strip())
+            data_dict['references'] = references
+    # 获取论文被引用信息
+    page_content = get_html_str(get_phantomjs_page(url + 'citations?anchor=anchor-paper-citations-ieee&ctx=citations'))
+    if page_content is not None:
+        # Cited in Papers - IEEE
+        h2 = page_content.find('h2', text=re.compile(r'Cited in Papers - IEEE'))
+        citations = list()
+        if h2 is not None:
+            divs = h2.find_next_siblings('div', class_='ng-scope')
+            for div in divs:
+                div_temp = div.find_next('div', class_='description ng-binding')
+                if div_temp:
+                    citations.append(div_temp.get_text().strip())
+        # Cited in Papers - Other Publishers
+        h2 = page_content.find('h2', text=re.compile(r'Cited in Papers - Other Publishers'))
+        if h2 is not None:
+            divs = h2.find_next_siblings('div', class_='ng-scope')
+            for div in divs:
+                div_temp = div.find_next('div', class_='description ng-binding')
+                if div_temp:
+                    citations.append(div_temp.get_text().strip())
+        data_dict['citations'] = citations
     return data_dict  # 返回数据字典（类别、等级、作者信息）
 
 
