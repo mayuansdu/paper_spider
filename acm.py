@@ -128,5 +128,4 @@ def run_acmdl():
 
 
 if __name__ == '__main__':
-    # run_acmdl()
-    handle_third_page('http://dl.acm.org/citation.cfm?doid=2976749.2978341', attrs={'category': 'conference'})
+    run_acmdl()
