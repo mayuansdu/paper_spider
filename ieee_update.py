@@ -40,7 +40,7 @@ def handle_first_page(url):
         db = get_database_connect()
         collection = db.update_conf
         setting_dict = collection.find_one({'name':'setting'})
-        if setting_dict:
+        if setting_dict is not None:
             last_update_time = setting_dict['last_update_time']
         else:
             last_update_time = '20170101'
@@ -102,9 +102,11 @@ def handle_second_page(urls):
 
 def handle_third_page(urls):
     for url in urls:
+        print('3级页面为：' + url)
         data_dict = dict()
         page_content = get_html_str(get_phantomjs_page(url))
         if page_content is None:
+            logger.info('论文内容页面无法获取!' + url)
             continue
         # 论文URL地址
         data_dict['url'] = url
@@ -195,7 +197,7 @@ def handle_third_page(urls):
                         citations.append(div_temp.get_text().strip())
             data_dict['citations'] = citations
         write_to_database(data_dict)
-        time.sleep(get_random_uniform(begin=1.0, end=5.0))
+        time.sleep(get_random_uniform(begin=1.0, end=15.0))
 
 
 def write_to_database(data):
