@@ -9,7 +9,7 @@ from util import get_phantomjs_page, get_database_connect, get_random_uniform
 root_dir = base_dir + 'updates/ieee/'
 # 记录程序运行的日志文件设定
 logfile = log_dir + 'update_ieee.log'
-logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，单位:M。默认最大为50M
+logfile_size = 50 * 1024 * 1024  # 日志文件的最大容量，默认最大为50M
 # 配置日志: 2个日志文件副本
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('ieee_update')
