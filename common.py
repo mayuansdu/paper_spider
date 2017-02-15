@@ -22,7 +22,7 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
-header = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:49.0) Gecko/20100101 Firefox/49.0',
+header = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0',
            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
            'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
            'Accept-Encoding': 'gzip, deflate',
@@ -228,7 +228,7 @@ def get_html_str(str):
 
 
 # 下载论文描述的ris格式文件保存到本地
-def download_paper_info(url, root_dir, logfile, attrs):
+def download_paper_info(url, root_dir, attrs):
     filename = re.split(r'/', url)[-1]
     page_content = get_html_text(url)
     if page_content is None:
@@ -241,11 +241,11 @@ def download_paper_info(url, root_dir, logfile, attrs):
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(data)
             f.flush()
-        write_to_database(filepath, logfile, attrs)
+        write_to_database(filepath, attrs)
 
 
 # 把论文信息写入数据库中
-def write_to_database(filepath, logfile, attrs):
+def write_to_database(filepath, attrs):
     attrs['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
     try:
         handle_ris(filepath, logfile, attrs)
@@ -263,7 +263,7 @@ def write_to_database(filepath, logfile, attrs):
 
 
 # 处理论文RIS文本内容
-def handle_ris(filepath, logfile, attrs):
+def handle_ris(filepath, attrs):
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:  # 此处不设置为utf-8 因为有特殊符号无法编码
             context = f.readlines()[5:-1]
