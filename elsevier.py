@@ -64,7 +64,7 @@ def handle_second_page(url, attrs):
                     'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
                 )
                 if raw_ris is not None:
-                    download_paper_info(raw_ris.get('href'), root_dir, logfile, attrs)
+                    download_paper_info(raw_ris.get('href'), root_dir, attrs)
         time.sleep(get_random_uniform(begin=60.0, end=300.0))
 
 
@@ -82,7 +82,7 @@ def download_paper_info(url, root_dir, logfile, attrs):
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(data)
             f.flush()
-        write_to_database(filepath, logfile, attrs)
+        write_to_database(filepath, attrs)
 
 
 # 把论文信息写入数据库中

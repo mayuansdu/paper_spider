@@ -63,7 +63,7 @@ def handle_second_page(url, attrs):
                     'div[class="body"] > ul:nth-of-type(1) > li:nth-of-type(2) > a'
                 )
                 if raw_ris is not None:
-                    download_paper_info(raw_ris.get('href'), root_dir, logfile, paper_dict)
+                    download_paper_info(raw_ris.get('href'), root_dir, paper_dict)
         time.sleep(get_random_uniform(begin=60.0, end=300.0))
 
 
