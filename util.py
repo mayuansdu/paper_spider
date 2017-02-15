@@ -1,8 +1,9 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import sys, platform, random, time, logging, logging.handlers
+import platform, random, time, logging, logging.handlers
 from pymongo import MongoClient
 from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 # 记录程序运行的日志文件设定
 logfile = './log/log_util.log'
@@ -43,7 +44,11 @@ def get_phantomjs():
 def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if (phantomjs is not None):
-        brower = webdriver.PhantomJS(executable_path=phantomjs)
+        dcap = dict(DesiredCapabilities.PHANTOMJS)
+        dcap["phantomjs.page.settings.userAgent"] = (
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) Gecko/20100101 Firefox/51.0"
+        )
+        brower = webdriver.PhantomJS(desired_capabilities=dcap, executable_path=phantomjs)
         brower.set_page_load_timeout(120)  # seconds 设置页面完全加载时间，超时则抛出异常
         for i in range(1, 6):   # 如果连接异常，尝试5次
             try:
@@ -51,7 +56,7 @@ def get_phantomjs_page(url):
                 page = brower.page_source
                 get_page = True # 已经获得完整页面数据
             except:
-                logger.exception('phantomjs出现错误:')
+                logger.exception('第%s次请求页面,phantomjs出现错误:', i)
                 get_page = False
             finally:
                 if get_page:    # 获得完整页面数据 则返回
@@ -78,3 +83,7 @@ def get_database_connect():
 # 返回生成的随机数,范围是[begin, end]
 def get_random_uniform(begin=60, end=300):
     return random.uniform(begin, end)
+
+
+if __name__ == '__main__':
+    print(get_phantomjs_page('https://httpbin.org/get?show_env=1')) # 可以显示报文头部信息的网址
