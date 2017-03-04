@@ -1,8 +1,7 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
 import re, copy, time, logging, logging.handlers
-from common import base_dir, log_dir, conference_acm, journal_acm, get_html_text,\
-    init_dir, download_paper_info
+from common import base_dir, log_dir, conference_acm, journal_acm, get_html_text, init_dir, download_paper_info
 from util import get_random_uniform
 
 # 保存下载文件的目录
@@ -38,7 +37,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=180.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 # 处理二级页面
@@ -64,7 +63,7 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), root_dir, paper_dict)
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
     if links is None:
         logger.info('处理二级页面，没有找到electronic edition链接' + str(url))
 
@@ -75,8 +74,24 @@ def handle_third_page(url, attrs):
     if soup is None:
         logger.info('soup is None:' + str(url))
         return None
-    # 获取关于论文的描述信息:标题、作者、发表日期等等
     data_dict = copy.deepcopy(attrs)  # 深拷贝字典
+    # 获取关于论文的描述信息:标题、作者、发表日期、关键词等等
+    paper_id = re.split(r'\.', url)[-1].strip()
+    bib_url = 'http://dl.acm.org/exportformats.cfm?id=' + paper_id + '&expformat=bibtex'
+    page = get_html_text(bib_url)
+    if page:
+        temp = page.find('pre')
+        if temp:
+            content = temp.get_text()
+            filepath = root_dir + paper_id
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+                f.flush()
+            with open(filepath, 'r') as f:
+                for line in f:
+                    if 'keywords' in line:
+                        temp = re.split(r'[{}]', line)[-2]
+                        data_dict['keywords'] = re.split(r',', temp)
     # 获取论文PDF的下载地址
     pdf_url = soup.find('a', attrs={'name': 'FullTextPDF'})
     if pdf_url is not None:
