@@ -248,7 +248,7 @@ def download_paper_info(url, root_dir, attrs):
 def write_to_database(filepath, attrs):
     attrs['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
     try:
-        handle_ris(filepath, logfile, attrs)
+        handle_ris(filepath, attrs)
         collection = attrs['category']
         if (collection is not None) and (collection != ''):
             db = get_database_connect()
