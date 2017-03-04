@@ -6,7 +6,7 @@ from common import base_dir, log_dir, conference_elsevier, journal_elsevier, get
 from util import get_random_uniform, get_database_connect
 
 # 保存下载文件的目录
-root_dir = base_dir + 'elsevier/'
+root_dir = base_dir + 'elsevier/conference/'
 
 # 程序运行日志文件
 logfile = log_dir + 'log_elsevier.log'
@@ -151,7 +151,6 @@ def run_elsevier():
     logger.warning('elsevier_spider正常启动!')
     try:
         spider_elsevier(conference_elsevier, attrs={'category': 'conference'})   # 采集会议论文信息
-        # spider_elsevier(journal_elsevier, attrs={'category': 'conference'}) # 采集期刊信息
     except Exception as e:
         logger.exception('elsevier_spider异常停止!')
     else:
