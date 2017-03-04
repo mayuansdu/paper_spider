@@ -28,13 +28,13 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 funcitons = [
-    run_acmdl,
+    run_elsevier,
+    run_isoc,
+    run_usenix,
     run_springer,
     # run_ieee_update,
     run_ieee,
-    # run_isoc,
-    # run_usenix,
-    run_elsevier,
+    run_acmdl,
 ]
 
 

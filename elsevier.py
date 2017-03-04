@@ -39,7 +39,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=180.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 def handle_second_page(url, attrs):
@@ -65,11 +65,11 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), root_dir, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 # 下载论文描述的ris格式文件保存到本地
-def download_paper_info(url, root_dir, logfile, attrs):
+def download_paper_info(url, root_dir, attrs):
     filename = re.split(r'/', url)[-1]
     page_content = get_html_text(url)
     if page_content is None:
@@ -86,11 +86,11 @@ def download_paper_info(url, root_dir, logfile, attrs):
 
 
 # 把论文信息写入数据库中
-def write_to_database(filepath, logfile, attrs):
+def write_to_database(filepath, attrs):
     data_dict = copy.deepcopy(attrs)
     data_dict['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
     try:
-        handle_ris(filepath, logfile, data_dict)
+        handle_ris(filepath, data_dict)
         collection = data_dict['category']
         if (collection is not None) and (collection != ''):
             db = get_database_connect()
@@ -100,12 +100,12 @@ def write_to_database(filepath, logfile, attrs):
                 db.journal.insert(data_dict)
             else:
                 db.others.insert(data_dict)
-    except Exception as e:
+    except Exception:
         logger.exception('写入数据库出错！')
 
 
 # 处理论文RIS文本内容
-def handle_ris(filepath, logfile, attrs):
+def handle_ris(filepath, attrs):
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:  # 此处不设置为utf-8 因为有特殊符号无法编码
             context = f.readlines()[5:-1]

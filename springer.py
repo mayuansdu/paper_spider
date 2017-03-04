@@ -39,7 +39,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=180.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 def handle_second_page(url, attrs):
@@ -66,7 +66,7 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), root_dir, paper_dict)
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 # 处理三级页面

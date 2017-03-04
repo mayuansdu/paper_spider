@@ -39,7 +39,7 @@ def handle_first_page(url, attrs):
         links = map(lambda raw_link: raw_link.get('href'), raw_links)
     for url in links:
         handle_second_page(url, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=180.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 def handle_second_page(url, attrs):
@@ -65,7 +65,7 @@ def handle_second_page(url, attrs):
                 )
                 if raw_ris is not None:
                     download_paper_info(raw_ris.get('href'), root_dir, attrs)
-        time.sleep(get_random_uniform(begin=60.0, end=300.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 # 下载论文描述的ris格式文件保存到本地
@@ -151,7 +151,7 @@ def run_isoc():
     logger.warning('isoc_spider正常启动!')
     try:
         spider_isoc(conference_isoc, attrs={'category': 'conference'})   # 采集会议论文信息
-    except Exception as e:
+    except Exception:
         logger.exception('isoc_spider异常停止!')
     else:
         logger.warning('isoc_spider正常停止!')
