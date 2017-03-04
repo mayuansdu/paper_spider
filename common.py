@@ -1,6 +1,6 @@
 #!usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, re, time, requests, logging, logging.handlers
+import logging, logging.handlers, os, re, requests, time
 from bs4 import BeautifulSoup
 from util import get_database_connect
 
