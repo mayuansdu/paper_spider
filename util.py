@@ -44,8 +44,11 @@ def get_phantomjs():
 def get_phantomjs_page(url):
     phantomjs = get_phantomjs()
     if phantomjs:
-        brower = webdriver.PhantomJS(executable_path=phantomjs)
-        brower.set_page_load_timeout(120)  # seconds 设置页面完全加载时间，超时则抛出异常
+        caps = DesiredCapabilities.PHANTOMJS
+        caps["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:51.0) " \
+                                                    "Gecko/20100101 Firefox/51.0"
+        brower = webdriver.PhantomJS(executable_path=phantomjs, desired_capabilities=caps)
+        brower.set_page_load_timeout(180)  # seconds 设置页面完全加载时间，超时则抛出异常
         for i in range(1, 6):   # 如果连接异常，尝试5次
             try:
                 brower.get(url)

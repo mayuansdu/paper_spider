@@ -155,9 +155,9 @@ conference_elsevier = {
 journal_elsevier = {
     'b': [
         'http://dblp.uni-trier.de/db/journals/compsec/',
+        'http://dblp.uni-trier.de/db/journals/ijcip/',
     ],
     'c': [
-        'http://www.journals.elsevier.com/computer-law-and-security-review/',
         'http://dblp.uni-trier.de/db/journals/istr/',
     ],
 }
