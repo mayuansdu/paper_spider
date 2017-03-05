@@ -8,6 +8,7 @@ from acm import run_acmdl
 from springer import run_springer
 from ieee import run_ieee
 from ieee_update import run_ieee_update
+from science_direct import run_science_direct
 from multiprocessing import Pool
 from common import init_dir, log_dir, base_dir
 
@@ -32,14 +33,15 @@ funcitons = [
     run_isoc,
     run_usenix,
     run_springer,
-    # run_ieee_update,
+    run_science_direct,
     run_ieee,
     run_acmdl,
+    # run_ieee_update,
 ]
 
 
 def spider_body():
-    pool = Pool(processes=4)    # set the processes max number 6
+    pool = Pool(processes=6)    # set the processes max number 6
     for function in funcitons:
         pool.apply_async(function)
     pool.close()
