@@ -97,10 +97,14 @@ def handle_third_page(url, attrs):
     tmp_list = soup.find_all('span', class_='authors-affiliations__name')
     author_dict = dict()
     for tmp in tmp_list:
-        id = tmp.find_next_sibling('ul').find_next('li').get_text()
-        author = re.sub(r'\xa0', ' ', tmp.get_text()).strip()
-        author = re.sub(r'[\._$]', ' ', author)
-        author_dict[author] = affiliation_list[int(id)-1]
+        ul = tmp.find_next_sibling('ul')
+        if ul:
+            li = ul.find_next('li')
+            if li:
+                id = li.get_text()
+                author = re.sub(r'\xa0', ' ', tmp.get_text()).strip()
+                author = re.sub(r'[\._$]', ' ', author)
+                author_dict[author] = affiliation_list[int(id)-1]
     if author_dict:
         data_dict['author'] = author_dict
     h2 = soup.find('h2', text=re.compile(r'Abstract'))

@@ -72,6 +72,9 @@ def handle_third_page(urls, attrs):
                 logger.info('handle_third_page没有找到跳转链接link:' + str(url))
                 return None
         soup = get_html_str(get_phantomjs_page(link))
+        if soup is None:
+            logger.info('无法获取到science_direct页面')
+            return None
         # 获取关于论文的描述信息:标题、作者、发表日期等等
         data_dict = copy.deepcopy(attrs)  # 深拷贝字典
         data_dict['url'] = link     # 保存论文的正真链接地址
