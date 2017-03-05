@@ -101,8 +101,27 @@ def handle_third_page(url, attrs):
         author = re.sub(r'\xa0', ' ', tmp.get_text()).strip()
         author = re.sub(r'[\._$]', ' ', author)
         author_dict[author] = affiliation_list[int(id)-1]
-    if len(author_dict) != 0:
+    if author_dict:
         data_dict['author'] = author_dict
+    h2 = soup.find('h2', text=re.compile(r'Abstract'))
+    if h2:
+        p = h2.find_next_sibling('p')
+        if p:
+            data_dict['abstract'] = p.get_text()
+    h3 = soup.find('h3', text=re.compile(r'Keywords'))
+    if h3:
+        span_list = h3.find_next_siblings('span', class_='Keyword')
+        keywords = list()
+        for span in span_list:
+            keywords.append(span.get_text())
+        data_dict['keywords'] = keywords
+    ol = soup.find('ol', class_='BibliographyWrapper')
+    if ol:
+        div_list = ol.find_all_next('div', class_='CitationContent')
+        references = list()
+        for div in div_list:
+            references.append(div.get_text().strip())
+        data_dict['references'] = references
     return data_dict
 
 
