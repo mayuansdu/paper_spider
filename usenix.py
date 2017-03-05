@@ -100,6 +100,11 @@ def handle_third_page(url, attrs):
                         author = re.sub(r'[\.$_]', ' ', author.strip())
                         authors_dict[author] = affiliation_dict
             data_dict['author'] = authors_dict
+    div = soup.find('div', text=re.compile(r'Abstract'))
+    if div:
+        div = div.find_next_sibling('div', class_='field-items')
+        if div:
+            data_dict['abstract'] = div.get_text()
     return data_dict  # 返回数据字典（类别、等级、作者信息）
 
 
