@@ -246,6 +246,8 @@ def download_paper_info(url, root_dir, attrs):
 
 # 把论文信息写入数据库中
 def write_to_database(filepath, attrs):
+    if attrs is None:
+        attrs = dict()
     attrs['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
     try:
         handle_ris(filepath, attrs)
