@@ -66,7 +66,7 @@ def get_phantomjs_page(url):
                     logger.error('无法获得此链接的数据:' + str(url))
                     return None
                 else:           # 未获得完整页面数据，则随机休眠一段时间，再次发送请求
-                    time.sleep(get_random_uniform(begin=5.0, end=10.0))
+                    time.sleep(get_random_uniform(begin=5.0, end=20.0))
     else:
         logger.error('无法获得phantomjs')
 
