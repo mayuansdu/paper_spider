@@ -23,6 +23,7 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+
 # 处理一级页面
 def handle_first_page(url, attrs):
     # 获得一级页面
@@ -38,7 +39,7 @@ def handle_first_page(url, attrs):
             raw_links.append(temp)
     for url in raw_links:
         handle_second_page(url, attrs)
-        # time.sleep(get_random_uniform(begin=2.0, end=60.0))
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
 
 
 def handle_second_page(url, attrs):
@@ -59,18 +60,16 @@ def handle_second_page(url, attrs):
 
 def handle_third_page(urls, attrs):
     for url in urls:
-        print(url)
         soup = get_html_str(get_phantomjs_page(url))
         if soup is None:
-            logger.info('2级页面无法获取:' + str(url))
+            logger.info('3级页面无法获取:' + str(url))
             return None
         else:
             link = soup.find('link', attrs={'rel': 'canonical'})
             if link:
                 link = link.get('href')
             else:
-                print('没有找到真正的链接')
-                print(soup.prettify())
+                logger.info('handle_third_page没有找到跳转链接link:' + str(url))
                 return None
         soup = get_html_str(get_phantomjs_page(link))
         # 获取关于论文的描述信息:标题、作者、发表日期等等
@@ -89,6 +88,7 @@ def handle_third_page(urls, attrs):
                 affiliation_dict['affiliation_name'] = ''
                 affiliation_dict['affiliation_country'] = ''
                 author_name = a.get_text().strip()
+                author_name = re.sub(r'[\._$]', ' ', author_name)
                 authors_dict[author_name] = affiliation_dict
             data_dict['author'] = authors_dict
         h2 = soup.find('h2', text=re.compile(r'Abstract'))
@@ -109,8 +109,27 @@ def handle_third_page(urls, attrs):
             references = list()
             for li in li_list:
                 references.append(li.get_text().strip())
-        print(data_dict)
-        # time.sleep(get_random_uniform(begin=2.0, end=10.0))
+            data_dict['reference'] = references
+        write_to_database(data_dict)
+        time.sleep(get_random_uniform(begin=2.0, end=60.0))
+
+
+# 把论文信息写入数据库中
+def write_to_database(attrs):
+    data_dict = copy.deepcopy(attrs)
+    data_dict['spider_time'] = time.strftime('%Y.%m.%d %H:%M:%S', time.localtime())
+    try:
+        collection = data_dict['category']
+        if collection and (collection != ''):
+            db = get_database_connect()
+            if collection == 'journal':
+                db.conference.insert(data_dict)
+            elif collection == 'conference':
+                db.journal.insert(data_dict)
+            else:
+                db.others.insert(data_dict)
+    except Exception:
+        logger.exception('写入数据库出错！')
 
 
 def spider_science_direct(urls, attrs):
@@ -133,5 +152,5 @@ def run_science_direct():
 
 
 if __name__ == '__main__':
-    # run_science_direct()
-    handle_third_page(['http://dx.doi.org/10.1016/j.cose.2016.10.001',], {})
+    run_science_direct()
+    # handle_third_page(['http://dx.doi.org/10.1016/j.cose.2016.10.001',], {})
