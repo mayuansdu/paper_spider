@@ -97,7 +97,8 @@ def handle_third_page(urls, attrs):
         h2 = soup.find('h2', text=re.compile(r'Abstract'))
         if h2:
             p = h2.find_next_sibling('p')
-            data_dict['abstract'] = p.get_text()
+            if p:
+                data_dict['abstract'] = p.get_text()
         h2 = soup.find('h2', text=re.compile(r'Keywords'))
         if h2:
             ul = h2.find_next_sibling('ul')
